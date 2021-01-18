@@ -1,0 +1,19 @@
+{
+  "name": "twitter-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon ./API/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "4.17.1",
+    "mongoose": "^5.11.12",
+    "twitter-lite": "^0.14.0",
+    "twitter-v2": "^1.0.0"
+  }
+}
