@@ -1,7 +1,8 @@
 const twitter = require('../components/tweets/network.js')
 
 const router = (server) => {
-  server.use('/tweets', twitter)
+  const API = '/api/v1'
+  server.use(API + '/tweets', twitter)
 }
 
 module.exports = router;
