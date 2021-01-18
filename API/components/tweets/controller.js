@@ -1,35 +1,47 @@
 const createModel = require('./model')
 
 async function listTweets(id, labels) {
+  let promises = []
+  return new Promise(async(resolve, reject) => {
 
-  let response = []
-  return await new Promise(async(resolve, reject) => {
-    labels = ["whatsapps", "facebook"]
-    console.log(labels)
-    // get all documents for each label
-    await labels.forEach(async label => {
-      console.log(label)
-      // create model 
-      const Model = await createModel(label.toString())
-      console.log(Model)
+  // foreach label push a promise
+  await labels.forEach(async (label) => {
+    promises.push(getTweetsById(id, label))
+  })
 
-      //Find documents by username or id
-      await Model.find({ $or: [{"user.username": id}, {"user.id": id}]}, (err, data) => {
-        if(err) {
-          console.log(err)
-          return reject('[Error controller] ', err)
+  //resolve all promises
+  Promise.all(promises)
+    .then(results => {
+      let response = {}
+
+      //format response
+      results.forEach((result, index) => {
+        let name = Object.keys(result)
+        if(result[name].length > 0) {
+          response[name] = result[name]
         }
-        resolve(response.push( {[label]: data} ))
       })
+
+      resolve(response)
     })
+    .catch(err => reject(err))
   })
-  .then(() => {
-    console.log(response)
-    return response
+}
+
+//get all tweets from a user and a label
+function getTweetsById(id, label) {
+  return new Promise(async(resolve, reject) => {
+    // get the model/collection by label
+    const Model = createModel(label)
+
+    //Find documents by username or id
+    await Model.find( { $or: [ {"user.username": id}, {"user.id": id} ] })
+    .then(data => resolve({ [label]: data }))
+    .catch(err => reject(err))
   })
-  .catch((err) => err)
 }
 
 module.exports = {
-  listTweets
+  listTweets,
+  getTweetsById
 }
