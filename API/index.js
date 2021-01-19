@@ -12,6 +12,15 @@ DB(DB_URI);
 //router
 router(app)
 
+//middleware to handle errors
+app.use(function(err, req, res, next) {
+  res.status(422).send({
+    error: err,
+    message: err.message,
+    code: res.statusCode
+  })
+})
+
 app.listen(config.app.port, () => {
   console.log('server running on port: ' + config.app.port)
 })

@@ -1,44 +1,32 @@
 const createModel = require('./model')
 
 async function listTweets(id, labels) {
-  let promises = []
-  return new Promise(async(resolve, reject) => {
-
+  let results = []
   // foreach label push a promise
-  await labels.forEach(async (label) => {
-    promises.push(getTweetsById(id, label))
+  labels.forEach(async (label) => {
+    results.push(getTweetsById(id, label))
   })
-
   //resolve all promises
-  Promise.all(promises)
-    .then(results => {
-      let response = {}
-
-      //format response
-      results.forEach((result, index) => {
-        let name = Object.keys(result)
-        if(result[name].length > 0) {
-          response[name] = result[name]
-        }
-      })
-
-      resolve(response)
-    })
-    .catch(err => reject(err))
-  })
+  return Promise.all(results)
 }
 
 //get all tweets from a user and a label
-function getTweetsById(id, label) {
-  return new Promise(async(resolve, reject) => {
-    // get the model/collection by label
-    const Model = createModel(label)
+async function getTweetsById(id, label) {
 
+  // get the model/collection by label
+  const Model = createModel(label)
+  try {
     //Find documents by username or id
-    await Model.find( { $or: [ {"user.username": id}, {"user.id": id} ] })
-    .then(data => resolve({ [label]: data }))
-    .catch(err => reject(err))
-  })
+    const data = await Model.find({ $or: [ {"user.username": id}, {"user.id": id} ] })
+    if(data.length == 0) throw new Error('Bad Request, couldnt found data for ' + label)
+
+    //format result
+    return { [label]: data }
+  }
+  catch(error){
+    console.error(error)
+    throw new Error(error)
+  }
 }
 
 module.exports = {
