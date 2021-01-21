@@ -1,13 +1,13 @@
 const createModel = require('./model')
 const Model = createModel('whatsapp')
 
-async function listTweetsByUser(id, labels, page, limit) {
+async function listTweetsByUser(id, options) {
   let results = []
-  const startIndex = (page - 1) * limit
+  const startIndex = (options.page - 1) * options.limit
 
   // foreach label push a promise
-  labels.forEach(async (label) => {
-    results.push(getTweetsById(id, label, startIndex, limit))
+  options.labels.forEach(async (label) => {
+    results.push(getTweetsById(id, label, startIndex, options.limit))
   })
 
   //resolve all promises
@@ -15,23 +15,11 @@ async function listTweetsByUser(id, labels, page, limit) {
 }
 
 //get all tweets from a user and a label
-async function getTweetsById(id, label, startIndex, limit) {
-  
-  // get the model/collection by label
-  const Model = createModel(label)
-  
+async function getTweetsById(id, options) {
   try {
-    
-    const query = { $or: [ {"user.username": id}, {"user.id": id} ] }
-    //count total docs
-    const count = await Model.countDocuments(query);
-
-    //get data
-    const data = await Model.find(query).limit(limit).skip(startIndex)
+    //return data
+    return Model.find(options.query).limit(options.limit).skip(options.startIndex)
     // if(data.length == 0) throw new Error('Bad Request, couldnt found data for ' + label)
-    
-    //format result
-    return { [label]: data, results:count}
   }
   catch(error){
     console.error(error)
@@ -39,8 +27,7 @@ async function getTweetsById(id, label, startIndex, limit) {
   }
 }
 
-async function countTotalDocuments(id) {
-  const query = { $or: [ {"user.username": id}, {"user.id": id} ] }
+async function countTotalDocuments(query) {
   return Model.countDocuments(query)
 }
 

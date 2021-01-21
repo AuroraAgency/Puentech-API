@@ -1,18 +1,22 @@
-module.exports = pagination = (limit, page, results, endpoint, id, params) => {
-  const myPage = parseInt(page) || 1
+module.exports = pagination = (rute, results, options) => {
+  const { startIndex, page, limit } = options
 
-  const startIndex = (myPage - 1) * limit
-  const endIndex = myPage * limit
+  const endIndex = page * limit
   
   const response = {}
 
   if (endIndex < results) {
-    response.next = `${endpoint}/${id}?labels=${params}&page=${myPage + 1}`
+    response.next = `${rute}?page=${page + 1}`
   }
   
   if (startIndex > 0) {
-    response.prev = `${endpoint}/${id}?labels=${params}&page=${myPage - 1}`
+    response.prev = `${rute}?page=${page - 1}`
   }
 
+  //format response
+  response.pages = Math.ceil(results / limit)
+  response.count = results
+  response.prev?  response.prev = response.prev :  response.prev = null
+  response.next? response.next = response.next:response.next= null
   return response;
 }
