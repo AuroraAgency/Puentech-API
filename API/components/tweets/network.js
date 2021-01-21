@@ -9,16 +9,15 @@ const DOMAIN = config.app.domain
 router.get('/:id', list)
 
 //handlers
-async function list(req, res, next) {
+function list(req, res, next) {
   const ENDPOINT = DOMAIN + req.baseUrl + req._parsedUrl.pathname
   const id = req.params.id
   const params = req.query.labels? req.query.labels : null
   const labels = params? params.split(',') : null
 
   let options =  {
-    limit: req.params.limit || 5,
+    limit: parseInt(req.query.limit) || 5,
     page: parseInt(req.query.page) || 1,
-    startIndex: (page - 1) * limit,
     params: params,
     labels: labels,
   }
@@ -59,7 +58,7 @@ async function list(req, res, next) {
     // .catch(next)
 
   } 
-
+  
   options.query = { "tweet.label": { $elemMatch: {$eq: id} } }
 
   Promise.all([
