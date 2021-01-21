@@ -1,13 +1,13 @@
 const createModel = require('./model')
-const pagination = require('../../lib/pagination')
-const API = `http://localhost:3000/api/v1/tweets`
+const Model = createModel('whatsapp')
 
-async function listTweets(id, labels) {
+async function listTweetsByUser(id, labels, page, limit) {
   let results = []
+  const startIndex = (page - 1) * limit
 
   // foreach label push a promise
   labels.forEach(async (label) => {
-    results.push(getTweetsById(id, label, labels))
+    results.push(getTweetsById(id, label, startIndex, limit))
   })
 
   //resolve all promises
@@ -15,24 +15,23 @@ async function listTweets(id, labels) {
 }
 
 //get all tweets from a user and a label
-async function getTweetsById(id, label, labels) {
-  const dbQuery = { $or: [ {"user.username": id}, {"user.id": id} ] }
-  const queryDetails = {id, params: labels, dbQuery}
-
+async function getTweetsById(id, label, startIndex, limit) {
+  
   // get the model/collection by label
   const Model = createModel(label)
-
+  
   try {
     
-    const paginationDetails = await pagination(Model, queryDetails, API)
+    const query = { $or: [ {"user.username": id}, {"user.id": id} ] }
+    //count total docs
+    const count = await Model.countDocuments(query);
 
-    //Find documents by username or id
-    const data = await Model.find(dbQuery).limit(paginationDetails.limit).skip(paginationDetails.startIndex)
-    if(data.length == 0) throw new Error('Bad Request, couldnt found data for ' + label)
+    //get data
+    const data = await Model.find(query).limit(limit).skip(startIndex)
+    // if(data.length == 0) throw new Error('Bad Request, couldnt found data for ' + label)
     
-
     //format result
-    return { [label]: data, info: paginationDetails.info}
+    return { [label]: data, results:count}
   }
   catch(error){
     console.error(error)
@@ -40,7 +39,13 @@ async function getTweetsById(id, label, labels) {
   }
 }
 
+async function countTotalDocuments(id) {
+  const query = { $or: [ {"user.username": id}, {"user.id": id} ] }
+  return Model.countDocuments(query)
+}
+
 module.exports = {
-  listTweets,
-  getTweetsById
+  listTweetsByUser,
+  getTweetsById,
+  countTotalDocuments
 }
