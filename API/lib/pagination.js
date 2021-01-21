@@ -1,16 +1,18 @@
 module.exports = pagination = (rute, results, options) => {
-  const { page, limit } = options
+  const { page, limit, params } = options
   const startIndex = (page - 1) * limit
   const endIndex = page * limit
   
   const response = {}
 
   if (endIndex < results) {
-    response.next = `${rute}?page=${page + 1}&limit=${limit}`
+    response.next = params? `${rute}?page=${page + 1}&limit=${limit}&tags=${params}`
+    :`${rute}?page=${page + 1}&limit=${limit}`
   }
   
   if (startIndex > 0) {
-    response.prev = `${rute}?page=${page - 1}&limit=${limit}`
+    response.prev = params? `${rute}?page=${page - 1}&limit=${limit}&tags=${params}`
+    :`${rute}?page=${page - 1}&limit=${limit}`
   }
 
   //format response

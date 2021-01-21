@@ -1,25 +1,12 @@
 const createModel = require('./model')
 const Model = createModel('whatsapp')
 
-async function listTweetsByUser(id, options) {
-  let results = []
-  const startIndex = (options.page - 1) * options.limit
-
-  // foreach label push a promise
-  options.labels.forEach(async (label) => {
-    results.push(getTweetsById(id, label, startIndex, options.limit))
-  })
-
-  //resolve all promises
-  return Promise.all(results)
-}
-
 //get all tweets from a user and a label
-async function getTweetsById(id, options) {
+async function getTweets(query, {page, limit}) {
+  const startIndex = (page - 1) * limit
+
   try {
-    //return data
-    return Model.find(options.query).limit(options.limit).skip(options.startIndex)
-    // if(data.length == 0) throw new Error('Bad Request, couldnt found data for ' + label)
+    return Model.find(query).limit(limit).skip(startIndex)
   }
   catch(error){
     console.error(error)
@@ -32,7 +19,6 @@ async function countTotalDocuments(query) {
 }
 
 module.exports = {
-  listTweetsByUser,
-  getTweetsById,
+  getTweets,
   countTotalDocuments
 }

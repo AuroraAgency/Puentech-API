@@ -14,8 +14,9 @@ router(app)
 
 //middleware to handle errors
 app.use(function(err, req, res, next) {
+  console.log(err)
   res.status(422).send({
-    error: err,
+    results: '',
     message: err.message,
     code: res.statusCode
   })

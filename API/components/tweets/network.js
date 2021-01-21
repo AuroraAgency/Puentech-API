@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { listTweetsByUser, getTweetsById,  countTotalDocuments } = require('./controller')
+const { getTweets,  countTotalDocuments } = require('./controller')
 const pagination = require('../../lib/pagination')
 const config = require('../../config/index')
 const DOMAIN = config.app.domain
@@ -9,72 +9,48 @@ const DOMAIN = config.app.domain
 router.get('/:id', list)
 
 //handlers
-function list(req, res, next) {
-  const ENDPOINT = DOMAIN + req.baseUrl + req._parsedUrl.pathname
+async function list(req, res, next) {
+  let ENDPOINT = DOMAIN + req.baseUrl + req._parsedUrl.pathname
   const id = req.params.id
-  const params = req.query.labels? req.query.labels : null
-  const labels = params? params.split(',') : null
-
+  const params = req.query.tags? req.query.tags : null
+  const tags = params? params.split(',') : null
   let options =  {
     limit: parseInt(req.query.limit) || 5,
     page: parseInt(req.query.page) || 1,
     params: params,
-    labels: labels,
+    tags: tags,
   }
-  if (params !== null) {
-    console.log("hola")
-      // options.query = { $or: [ {"user.username": id}, {"user.id": id} ] }
-    // await listTweets(id, options)
-    // .then(tweets => {
-    //   let response = {}
+  let query
   
-    //   // format response
-    //   response.info = {
-    //     results: { total: 0 },
-    //     limit: limit * tweets.length,
-    //   }
+  if(params !== null) {
+    query = {
+      $and: [ 
+        { "tweet.label": { $elemMatch: {$eq: params} } }, 
+        { $or: [ {"user.username": id}, {"user.id": id} ] } 
+      ]
+    } 
+  }
+  else {
+    query = { "tweet.label": { $elemMatch: {$eq: id} } }
+  }
   
-    //   tweets.forEach((tweet) => {
-    //     const results = tweet.results
-    //     delete tweet.results
-    //     response.info.results.total += results
-        
-    //     const name = Object.keys(tweet)
-    //     response[name] = tweet[name]
-        
-    //     if(tweets.length > 1) {
-    //       response.info.results[name] = results
-    //     }
-    //   })
-      
-    //   response.info.pages = Math.ceil(response.info.results.total / response.info.limit)
-  
-    //   const paginationDetails = pagination(response.info.limit, page, response.info.results.total, API, userId, params)
-  
-    //   response.info.next = paginationDetails.next || false
-    //   response.info.prev = paginationDetails.prev || false
-    //   res.status(200).send(response)
-    // })
-    // .catch(next)
-
-  } 
-  
-  options.query = { "tweet.label": { $elemMatch: {$eq: id} } }
-
-  Promise.all([
-    getTweetsById(id, options),
-    countTotalDocuments(options.query)
-  ])
-  .then((data) => {
-    const count = data[1]
-    const info = pagination(ENDPOINT, count, options)
+  try {
+    // console.log(a)
+    const data = await Promise.all([
+      countTotalDocuments(query),
+      getTweets(query, options),
+    ]);
+    const count = data[0];
+    const info = pagination(ENDPOINT, count, options);
 
     res.status(200).send({
+      error: '',
       info,
-      results: data[0],
-    })
-  })
-  .catch(next)
+      results: data[1],
+    });
+  } catch (error) {
+    return next(error);
+  }
 }
 
 module.exports = router;
