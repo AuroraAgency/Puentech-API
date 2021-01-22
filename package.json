@@ -1,13 +1,14 @@
 {
   "name": "twitter-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Puentech API REST. In order to provide tweets data",
   "main": "index.js",
   "scripts": {
+    "prod": "node ./API/index.js",
     "dev": "nodemon ./API/index.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["Node", "MongoDB", "JS", "Express"],
+  "author": "Aurora-Lab",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^8.2.0",
