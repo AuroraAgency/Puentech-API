@@ -4,7 +4,7 @@
   "description": "Puentech API REST. In order to provide tweets data",
   "main": "index.js",
   "scripts": {
-    "prod": "node ./API/index.js",
+    "start": "node ./API/index.js",
     "dev": "nodemon ./API/index.js"
   },
   "keywords": ["Node", "MongoDB", "JS", "Express"],
