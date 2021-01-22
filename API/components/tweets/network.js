@@ -14,6 +14,7 @@ async function list(req, res, next) {
   const id = req.params.id
   const params = req.query.tags? req.query.tags : null
   const tags = params? params.split(',') : null
+  
   let options =  {
     limit: parseInt(req.query.limit) || 5,
     page: parseInt(req.query.page) || 1,
@@ -25,17 +26,16 @@ async function list(req, res, next) {
   if(params !== null) {
     query = {
       $and: [ 
-        { "tweet.label": { $elemMatch: {$eq: params} } }, 
+        { "label": { $elemMatch: {$eq: params} } }, 
         { $or: [ {"user.username": id}, {"user.id": id} ] } 
       ]
     } 
   }
   else {
-    query = { "tweet.label": { $elemMatch: {$eq: id} } }
+    query = { "label": { $elemMatch: {$eq: id} } }
   }
   
   try {
-    // console.log(a)
     const data = await Promise.all([
       countTotalDocuments(query),
       getTweets(query, options),

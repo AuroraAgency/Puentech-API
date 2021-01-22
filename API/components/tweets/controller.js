@@ -1,5 +1,4 @@
-const createModel = require('./model')
-const Model = createModel('whatsapp')
+const Model = require('./model')
 
 //get all tweets from a user and a label
 async function getTweets(query, {page, limit}) {
