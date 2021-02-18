@@ -1,7 +1,7 @@
-const express = require('express');
-const router = require('./router/index.js')
-const DB = require('./db/mongo')
-const config = require('./config/index')
+const express = require("express");
+const router = require("./router/index.js");
+const DB = require("./db/mongo");
+const config = require("./config/index");
 
 const app = express();
 
@@ -10,18 +10,18 @@ const DB_URI = `mongodb+srv://${config.db.db_user}:${config.db.db_password}@puen
 DB(DB_URI);
 
 //router
-router(app)
+router(app);
 
 //middleware to handle errors
-app.use(function(err, req, res, next) {
-  console.log(err)
+app.use(function (err, req, res, next) {
+  console.log(err);
   res.status(422).send({
-    results: '',
+    results: "",
     message: err.message,
-    code: res.statusCode
-  })
-})
+    code: res.statusCode,
+  });
+});
 
 app.listen(config.app.port, () => {
-  console.log('server running on port: ' + config.app.port)
-})
+  console.log("server running on port: " + config.app.port);
+});

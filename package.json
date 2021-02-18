@@ -7,10 +7,16 @@
     "start": "node ./API/index.js",
     "dev": "nodemon ./API/index.js"
   },
-  "keywords": ["Node", "MongoDB", "JS", "Express"],
+  "keywords": [
+    "Node",
+    "MongoDB",
+    "JS",
+    "Express"
+  ],
   "author": "Aurora-Lab",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "4.17.1",
     "mongoose": "^5.11.12",
